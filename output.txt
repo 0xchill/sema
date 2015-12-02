@@ -1,0 +1,16 @@
+Producer (1) time 3: Job id 4 duration 6
+Producer (1) time 5: Job id 5 duration 3
+Producer (1) time 9: Job id 6 duration 3
+Producer (1) time 9: No more jobs to generate.
+Consumer (1) time 0 : Job id1 executing sleep duration 6
+Consumer (1) time 0 : Job id2 completed
+Consumer (1) time 6 : Job id2 executing sleep duration 3
+Consumer (1) time 6 : Job id3 completed
+Consumer (1) time 9 : Job id3 executing sleep duration 3
+Consumer (1) time 9 : Job id4 completed
+Consumer (1) time 12 : Job id4 executing sleep duration 6
+Consumer (1) time 12 : Job id5 completed
+Consumer (1) time 18 : Job id5 executing sleep duration 3
+Consumer (1) time 18 : Job id6 completed
+Consumer (1) time 21 : Job id6 executing sleep duration 3
+Consumer (1) time 21 : Job id0 completed
