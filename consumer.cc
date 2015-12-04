@@ -27,45 +27,43 @@ int main (int argc, char *argv[])
     perror("shmat consumer ");
     
   while(true){
-    
-    //wait for memory access
-    sem_wait(semid,2);
-    
-    //if the queue is not empty execute the job
-    if(q->size!=0){
-      int duration = q->job[q->front].duration;
-      
-      printf("Consumer (%d) time %d : Job id ",consumer_id,time(0)-start);
-      printf("%d executing sleep duration %d\n",q->job[q->front].id,duration);
-      sleep(duration);
-      printf("Consumer (%d) time %d : Job id ",consumer_id,time(0)-start);
-      printf("%d completed\n",q->job[q->front].id);
-      
-      q->front ++;
-      q->size --;
-      
-      //up on the data
-      sem_signal(semid,2);
-    }else{
-      //up on the data
-      sem_signal(semid,2);
-      
-      if(sem_timewait(semid,1,10) == -1){
-        printf("Consumer (%d) time %d : No jobs left.\n",consumer_id,time(0)-start);
-        break;
-      }
-    }
-      
-    
-    
+	  
+	//-------------Down item-----------
+	if(sem_timewait(semid,SEM_ITEM,10) == -1){
+	  printf("Consumer (%d) time %d : No jobs left.\n",consumer_id,time(0)-start);
+	  break;
+	}
+
+	//-------------Down mutex-----------
+	sem_wait(semid,SEM_MUTEX);
+	
+	int duration = q->job[q->front].duration;
+	int job_id = q->job[q->front].id;
+
+	q->job[q->front].id = 0;
+	q->front = (q->front + 1)%(q->size);
+
+	//-------------Up mutex-----------
+	sem_signal(semid,SEM_MUTEX);
+
+	//-------------Up space-----------
+    sem_signal(semid,SEM_SPACE);
+
+	printf("Consumer (%d) time %d : Job id ",consumer_id,time(0)-start);
+	printf("%d executing sleep duration %d\n",job_id,duration);
+	sleep(duration);
+	printf("Consumer (%d) time %d : Job id ",consumer_id,time(0)-start);
+	printf("%d completed\n",job_id);
+     
   }
-  sleep(100);
+  sleep(50);
+  
   //close semaphores
   sem_close(semid);
         
   //detach from shared memory
   shmdt(q);
-        
+
   //delete shared memory
   shmctl(shmid,IPC_RMID,NULL);
   

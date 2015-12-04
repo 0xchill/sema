@@ -16,12 +16,15 @@
 # include <errno.h>
 # include <string.h>
 
-# define SHM_KEY 0x50 // Change this number as needed
+# define SHM_KEY 0x36// Change this number as needed
 # define SHM_W 0200
 # define SHM_R 0400
 # define SHM_MODE (SHM_R | SHM_W)
 # define SHM_SIZE 10000 // Change this number as needed
-# define SEM_KEY 0x50 // Change this number as needed
+# define SEM_KEY 0x36 // Change this number as needed
+# define SEM_ITEM 1
+# define SEM_SPACE 2
+# define SEM_MUTEX 3
 
 union semun {
     int val;               /* used for SETVAL only */
