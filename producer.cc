@@ -20,7 +20,10 @@ int main (int argc, char *argv[])
   //associate with the shared memory
   int shmid = shmget(SHM_KEY,SHM_SIZE,SHM_R);
   
-  queue* q;
+  //link to the queue
+  queue* q = (queue*)shmat(shmid,(void*)0,0);
+  if(q==(queue*)(-1))
+    perror("shmat producer ");
   
   time_t start = time(0);
   time_t now = start;
@@ -32,11 +35,7 @@ int main (int argc, char *argv[])
     //wait for access
     sem_wait(semid,2);
     
-    //penetration
-    void* data = shmat(shmid,(void*)0,0);
-    if(data==(void*)(-1))
-      perror("shmat producer ");
-    q = (queue*)data;
+    //produce a job
     if(q->size != 0){
       q->end ++;
     }
@@ -55,13 +54,12 @@ int main (int argc, char *argv[])
     sem_signal(semid,2);
     
     if(i==job_number -1){
-      shmdt(data);
     }else{
       sleep(time_wait);
     }
     
   }
-  
+  shmdt(q);
   now = time(0);
   printf("Producer (%d) time %d: ",producer_id,now-start);
   printf("No more jobs to generate.\n");
