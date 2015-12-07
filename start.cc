@@ -31,12 +31,9 @@ int main (int argc, char **argv)
   }
   
   //Init the semaphores
-  if(sem_init(semid,SEM_ITEM,0) == -1 ||
-      sem_init(semid,SEM_SPACE,queue_size) == -1 ||
-      sem_init(semid,SEM_MUTEX,1) == -1){
-    printf("Error initializing the semaphores\n");
-    return 1;
-  }
+  sem_init(semid,SEM_ITEM,0);
+  sem_init(semid,SEM_SPACE,queue_size);
+  sem_init(semid,SEM_MUTEX,1);
 
   //Create the shared memory segment
   int shmid = shmget(SHM_KEY,SHM_SIZE, 0666 | IPC_CREAT);
