@@ -16,15 +16,16 @@
 # include <errno.h>
 # include <string.h>
 
-# define SHM_KEY 0x36// Change this number as needed
+# define SHM_KEY 0x36 // Change this number as needed
 # define SHM_W 0200
 # define SHM_R 0400
 # define SHM_MODE (SHM_R | SHM_W)
 # define SHM_SIZE 10000 // Change this number as needed
 # define SEM_KEY 0x36 // Change this number as needed
-# define SEM_ITEM 1
-# define SEM_SPACE 2
-# define SEM_MUTEX 3
+# define SEM_ITEM 1 //Semaphore to ensure that the queue is not empty
+# define SEM_SPACE 2 //Semaphore to ensure that the queue is not full
+# define SEM_MUTEX 3 //Semaphore for the mutual exclusion
+# define QUEUE_MAX_SIZE 500 //Maximum size of the queue
 
 union semun {
     int val;               /* used for SETVAL only */
@@ -43,7 +44,7 @@ typedef struct queue
   int size; 
   int front;
   int end;
-  JOBTYPE job[500]; // Can assume this to be maximum queue size
+  JOBTYPE job[QUEUE_MAX_SIZE];
 } QUEUE;
 
 int check_arg (char *);

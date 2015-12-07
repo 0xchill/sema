@@ -8,9 +8,8 @@ int produce_job(queue* q,int job_duration){
 	int job_index;
 
 	//if the queue is empty
-	if(q->job[q->end].id == 0){
-		q->end = 0;
-		job_index = 0;
+	if(q->end == q->front && q->job[q->end].id == 0){
+		job_index = q->end;
 	}else{
 		job_index = (q->end + 1)%(q->size);
 		q->end = job_index;
@@ -26,23 +25,40 @@ int main (int argc, char *argv[])
 {
   int job_number, producer_id;
   if(argc != 3){
-    printf("help: ./producer producer-id jobs-number\n");
+    printf("help: ./producer producer-id job-number\n");
     return 1;
   }
   //Read in the two command line arguments
   producer_id = check_arg(argv[1]);
+  if(producer_id == -1){
+    printf("Wrong input for producer-id, only numbers are accepted\n");
+    return 1;
+  }
   job_number = check_arg(argv[2]);
+  if(job_number == -1){
+    printf("Wrong input for job-number, only numbers are accepted\n");
+    return 1;
+  }
   
   //associate with the semaphores
   int semid = sem_attach(SEM_KEY);
+  if(semid == -1){
+    printf("Error, can't attach producer (%d) to the semaphores\n",producer_id);
+    return 1;
+  }
   
   //associate with the shared memory
   int shmid = shmget(SHM_KEY,SHM_SIZE,SHM_W);
+  if(semid == -1){
+    printf("Error, can't associate producer (%d) to the shared memory\n",producer_id);
+    return 1;
+  }
   
   //link to the queue
   queue* q = (queue*)shmat(shmid,(void*)0,0);
-  if(q==(queue*)(-1))
+  if(q==(queue*)(-1)){
     perror("shmat producer ");
+  }
   
   time_t start = time(0);
   time_t now = start;

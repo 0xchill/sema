@@ -10,27 +10,42 @@ int main (int argc, char *argv[])
     printf("help: ./consumer consumer-id \n");
     return 1;
   }
+  
   time_t start = time(0);
   
   //Read in the one command line argument
   consumer_id = check_arg(argv[1]);
+  if(consumer_id == -1){
+    printf("Wrong input for consumer_id, only numbers are accepted\n");
+    return 1;
+  }
   
   //associate with the semaphore array
   int semid = sem_attach(SEM_KEY);
+  if(semid == -1){
+    printf("Error, can't associate consumer (%d) to the semaphores\n",consumer_id);
+    return 1;
+  }
   
   //associate with the shared memory
   int shmid = shmget(SHM_KEY,SHM_SIZE,SHM_R);
+  if(shmid == -1){
+    printf("Error, can't associate consumer (%d) to the shared memory\n",consumer_id);
+    return 1;
+  }
   
   //get the queue
   queue* q = (queue*)shmat(shmid,(void*)0,0);
-  if(q==(queue*)(-1))
+  if(q==(queue*)(-1)){
     perror("shmat consumer ");
+    return 1;
+  }
     
   while(true){
 	  
 	//-------------Down item-----------
 	if(sem_timewait(semid,SEM_ITEM,10) == -1){
-	  printf("Consumer (%d) time %d : No jobs left.\n",consumer_id,time(0)-start);
+	  printf("Consumer (%d) time %d : No jobs left.\n",consumer_id,(int)(time(0)-start));
 	  break;
 	}
 
@@ -49,10 +64,10 @@ int main (int argc, char *argv[])
 	//-------------Up space-----------
     sem_signal(semid,SEM_SPACE);
 
-	printf("Consumer (%d) time %d : Job id ",consumer_id,time(0)-start);
+	printf("Consumer (%d) time %d : Job id ",consumer_id,(int)(time(0)-start));
 	printf("%d executing sleep duration %d\n",job_id,duration);
 	sleep(duration);
-	printf("Consumer (%d) time %d : Job id ",consumer_id,time(0)-start);
+	printf("Consumer (%d) time %d : Job id ",consumer_id,(int)(time(0)-start));
 	printf("%d completed\n",job_id);
      
   }
